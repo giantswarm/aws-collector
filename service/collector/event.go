@@ -107,10 +107,10 @@ func (r *Event) Collect(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	var createFailedCount map[string]int
-	var deleteFailedCount map[string]int
-	var updateRollbackFailedCount map[string]int
-	var rollbackFailedCount map[string]int
+	var createFailedCount = map[string]int{}
+	var deleteFailedCount = map[string]int{}
+	var updateRollbackFailedCount = map[string]int{}
+	var rollbackFailedCount = map[string]int{}
 
 	for _, event := range list.Items {
 		event := event // dereferencing pointer value into new scope
