@@ -105,6 +105,21 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var eventCollector *Event
+	{
+		c := EventConfig{
+			K8sClient: config.Clients,
+			Logger:    config.Logger,
+
+			InstallationName: config.InstallationName,
+		}
+
+		eventCollector, err = NewEvent(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var sqCollector *ServiceQuota
 	{
 		c := ServiceQuotaConfig{
@@ -171,6 +186,7 @@ func NewSet(config SetConfig) (*Set, error) {
 				asgCollector,
 				ec2InstancesCollector,
 				elbCollector,
+				eventCollector,
 				sqCollector,
 				natCollector,
 				vpcCollector,
