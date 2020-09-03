@@ -43,7 +43,7 @@ Installation:
     Registry:
       Domain: ""
     Secret:
-      AWSOperator:
+      AWSCollector:
         SecretYaml: ""
       Registry:
         PullSecret:
