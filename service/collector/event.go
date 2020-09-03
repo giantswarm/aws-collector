@@ -14,26 +14,25 @@ import (
 )
 
 const (
-	eventDeleteFailedReason         = "CFDeleteFailed"
 	eventCreateFailedReason         = "CFCreateFailed"
-	eventUpdateFailedReason         = "CFCreateFailed"
+	eventDeleteFailedReason         = "CFDeleteFailed"
 	eventUpdateRollbackFailedReason = "CFUpdateRollbackFailed"
 	eventRollbackFailedReason       = "CFRollbackFailed"
 )
 
 var (
-	CFFailedDeletionDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "cloudformation", "deletion_failed"),
-		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusDeleteFailed),
+	CFFailedCreationDesc *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "cloudformation", "creation_failed"),
+		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusCreateFailed),
 		[]string{
 			labelInstallation,
 			labelCluster,
 		},
 		nil,
 	)
-	CFFailedRollbackDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "cloudformation", "rollback_failed"),
-		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusRollbackFailed),
+	CFFailedDeletionDesc *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "cloudformation", "deletion_failed"),
+		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusDeleteFailed),
 		[]string{
 			labelInstallation,
 			labelCluster,
@@ -49,9 +48,9 @@ var (
 		},
 		nil,
 	)
-	CFFailedCreationDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "cloudformation", "creation_failed"),
-		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusCreateFailed),
+	CFFailedRollbackDesc *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "cloudformation", "rollback_failed"),
+		fmt.Sprintf("Amount of Cloudformation stacks which are in state `%s`", cloudformation.StackStatusRollbackFailed),
 		[]string{
 			labelInstallation,
 			labelCluster,
