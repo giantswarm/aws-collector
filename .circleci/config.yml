@@ -125,7 +125,7 @@ workflows:
           app_collection_repo: "aws-app-collection"
           unique: "true"
           requires:
-            - push-aws-collector-to-control-plane-app-catalog
+            - push-to-app-catalog-master
           filters:
             # Only do this when a new tag is created.
             branches:
