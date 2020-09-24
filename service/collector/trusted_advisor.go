@@ -2,7 +2,9 @@ package collector
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/support"
 	"github.com/giantswarm/microerror"
@@ -11,6 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/giantswarm/aws-collector/client/aws"
+	"github.com/giantswarm/aws-collector/service/internal/cache"
 )
 
 const (
@@ -35,6 +38,11 @@ const (
 const (
 	labelRegion  = "region"
 	labelService = "service"
+)
+
+const (
+	// __TrustedAdvisorCache__ is used as temporal cache key to save TrustedAdvisor response.
+	prefixTrustedAdvisorcacheKey = "__TrustedAdvisorCache__"
 )
 
 var (
@@ -78,8 +86,23 @@ type TrustedAdvisorConfig struct {
 }
 
 type TrustedAdvisor struct {
+	cache  *trustedAdvisorCache
 	helper *helper
 	logger micrologger.Logger
+}
+
+type trustedAdvisorCache struct {
+	cache *cache.StringCache
+}
+
+type trustedAdvisorInfoResponse struct {
+	trustedAdvisors []trustedAdvisorInfo
+}
+
+type trustedAdvisorInfo struct {
+	AccountID string
+	CheckID   *string
+	Resources []*support.TrustedAdvisorResourceDetail
 }
 
 func NewTrustedAdvisor(config TrustedAdvisorConfig) (*TrustedAdvisor, error) {
@@ -91,11 +114,48 @@ func NewTrustedAdvisor(config TrustedAdvisorConfig) (*TrustedAdvisor, error) {
 	}
 
 	t := &TrustedAdvisor{
+		cache:  newTrustedAdvisorCache(time.Minute * 5),
 		helper: config.Helper,
 		logger: config.Logger,
 	}
 
 	return t, nil
+}
+
+func newTrustedAdvisorCache(expiration time.Duration) *trustedAdvisorCache {
+	cache := &trustedAdvisorCache{
+		cache: cache.NewStringCache(expiration),
+	}
+
+	return cache
+}
+
+func (n *trustedAdvisorCache) Get(key string) (*trustedAdvisorInfoResponse, error) {
+	var c trustedAdvisorInfoResponse
+	raw, exists := n.cache.Get(getTrustedAdvisorCacheKey(key))
+	if exists {
+		err := json.Unmarshal(raw, &c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return &c, nil
+}
+
+func (n *trustedAdvisorCache) Set(key string, content trustedAdvisorInfoResponse) error {
+	contentSerialized, err := json.Marshal(content)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	n.cache.Set(getTrustedAdvisorCacheKey(key), contentSerialized)
+
+	return nil
+}
+
+func getTrustedAdvisorCacheKey(key string) string {
+	return prefixTrustedAdvisorcacheKey + key
 }
 
 func (t *TrustedAdvisor) Collect(ch chan<- prometheus.Metric) error {
@@ -143,36 +203,30 @@ func (t *TrustedAdvisor) collectForAccount(ch chan<- prometheus.Metric, awsClien
 	if err != nil {
 		return microerror.Mask(err)
 	}
-
-	checks, err := t.getTrustedAdvisorChecks(awsClients)
-	if IsUnsupportedPlan(err) {
-		// While iterating through all kinds of account related AWS clients, we may
-		// or may not be able to work against the Trusted Advisor API, depending on
-		// the account's support plans.
-		return nil
-	} else if err != nil {
+	var trustedAdvisorInfo *trustedAdvisorInfoResponse
+	// Check if response is cached
+	trustedAdvisorInfo, err = t.cache.Get(accountID)
+	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	var g errgroup.Group
-
-	for _, check := range checks {
-		// Ignore any checks that don't relate to service limits.
-		if *check.Category != categoryServiceLimit {
-			continue
+	//Cache empty, getting from API
+	if trustedAdvisorInfo == nil || trustedAdvisorInfo.trustedAdvisors == nil {
+		trustedAdvisorInfo, err = t.getTrustedAdvisorInfoFromAPI(accountID, awsClients)
+		if err != nil {
+			return microerror.Mask(err)
 		}
-
-		// Register the check ID for the current loop scope so it can safely be used
-		// in the goroutine below, which is execute in parallel.
-		id := check.Id
-
-		g.Go(func() error {
-			resources, err := t.getTrustedAdvisorResources(id, awsClients)
+		if trustedAdvisorInfo != nil {
+			err = t.cache.Set(accountID, *trustedAdvisorInfo)
 			if err != nil {
 				return microerror.Mask(err)
 			}
+		}
+	}
+	if trustedAdvisorInfo != nil {
+		for _, ta := range trustedAdvisorInfo.trustedAdvisors {
 
-			for _, resource := range resources {
+			for _, resource := range ta.Resources {
 				// One Trusted Advisor check returns the nil string for current usage.
 				// Skip it.
 				if len(resource.Metadata) == 6 && resource.Metadata[4] == nil {
@@ -187,17 +241,62 @@ func (t *TrustedAdvisor) collectForAccount(ch chan<- prometheus.Metric, awsClien
 				ch <- limit
 				ch <- usage
 			}
-
-			return nil
-		})
-	}
-
-	err = g.Wait()
-	if err != nil {
-		return microerror.Mask(err)
+		}
 	}
 
 	return nil
+}
+
+// getTrustedAdvisorInfoFromAPI collects Trused Advisor Info from AWS API
+func (t *TrustedAdvisor) getTrustedAdvisorInfoFromAPI(accountID string, awsClients aws.Clients) (*trustedAdvisorInfoResponse, error) {
+	var res trustedAdvisorInfoResponse
+
+	checks, err := t.getTrustedAdvisorChecks(awsClients)
+	if IsUnsupportedPlan(err) {
+		// While iterating through all kinds of account related AWS clients, we may
+		// or may not be able to work against the Trusted Advisor API, depending on
+		// the account's support plans.
+		return nil, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	var trustedAdvisors []trustedAdvisorInfo
+	{
+		var g errgroup.Group
+
+		for _, check := range checks {
+			// Ignore any checks that don't relate to service limits.
+			if *check.Category != categoryServiceLimit {
+				continue
+			}
+			// Register the check ID for the current loop scope so it can safely be used
+			// in the goroutine below, which is execute in parallel.
+			id := check.Id
+
+			g.Go(func() error {
+				resources, err := t.getTrustedAdvisorResources(id, awsClients)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				trustedAdvisor := trustedAdvisorInfo{
+					AccountID: accountID,
+					CheckID:   id,
+					Resources: resources,
+				}
+				trustedAdvisors = append(trustedAdvisors, trustedAdvisor)
+
+				return nil
+			})
+		}
+
+		err = g.Wait()
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+	res.trustedAdvisors = trustedAdvisors
+	return &res, nil
 }
 
 // getTrustedAdvisorCheckDescriptions calls Trusted Advisor API to get all
