@@ -96,7 +96,7 @@ type trustedAdvisorCache struct {
 }
 
 type trustedAdvisorInfoResponse struct {
-	trustedAdvisors []trustedAdvisorInfo
+	TrustedAdvisors []trustedAdvisorInfo
 }
 
 type trustedAdvisorInfo struct {
