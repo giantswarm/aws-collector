@@ -102,7 +102,15 @@ type trustedAdvisorInfoResponse struct {
 type trustedAdvisorInfo struct {
 	AccountID string
 	CheckID   *string
-	Resources []*support.TrustedAdvisorResourceDetail
+	Resources []trustedAdvisorResource
+}
+
+type trustedAdvisorResource struct {
+	Region    *string
+	Service   *string
+	LimitName *string
+	Limit     *string
+	Usage     *string
 }
 
 func NewTrustedAdvisor(config TrustedAdvisorConfig) (*TrustedAdvisor, error) {
@@ -227,17 +235,10 @@ func (t *TrustedAdvisor) collectForAccount(ch chan<- prometheus.Metric, awsClien
 		for _, ta := range trustedAdvisorInfo.trustedAdvisors {
 
 			for _, resource := range ta.Resources {
-				// One Trusted Advisor check returns the nil string for current usage.
-				// Skip it.
-				if len(resource.Metadata) == 6 && resource.Metadata[4] == nil {
-					continue
-				}
-
 				limit, usage, err := resourceToMetrics(resource, accountID)
 				if err != nil {
 					return microerror.Mask(err)
 				}
-
 				ch <- limit
 				ch <- usage
 			}
@@ -275,14 +276,35 @@ func (t *TrustedAdvisor) getTrustedAdvisorInfoFromAPI(accountID string, awsClien
 			id := check.Id
 
 			g.Go(func() error {
-				resources, err := t.getTrustedAdvisorResources(id, awsClients)
-				if err != nil {
-					return microerror.Mask(err)
+				var TAresources []trustedAdvisorResource
+				{
+					resources, err := t.getTrustedAdvisorResources(id, awsClients)
+					if err != nil {
+						return microerror.Mask(err)
+					}
+					for _, resource := range resources {
+						// One Trusted Advisor check returns the nil string for current usage.
+						// Skip it.
+						if len(resource.Metadata) == 6 && resource.Metadata[4] == nil {
+							continue
+						}
+						if len(resource.Metadata) != resourceMetadataLength {
+							return invalidResourceError
+						}
+						TAResource := trustedAdvisorResource{
+							Region:    resource.Metadata[indexRegion],
+							Service:   resource.Metadata[indexService],
+							LimitName: resource.Metadata[indexName],
+							Limit:     resource.Metadata[indexLimit],
+							Usage:     resource.Metadata[indexUsage],
+						}
+						TAresources = append(TAresources, TAResource)
+					}
 				}
 				trustedAdvisor := trustedAdvisorInfo{
 					AccountID: accountID,
 					CheckID:   id,
-					Resources: resources,
+					Resources: TAresources,
 				}
 				trustedAdvisors = append(trustedAdvisors, trustedAdvisor)
 
@@ -336,17 +358,13 @@ func (t *TrustedAdvisor) getTrustedAdvisorResources(id *string, awsClients aws.C
 	return checkResultOutput.Result.FlaggedResources, nil
 }
 
-func resourceToMetrics(resource *support.TrustedAdvisorResourceDetail, accountID string) (prometheus.Metric, prometheus.Metric, error) {
-	if len(resource.Metadata) != resourceMetadataLength {
-		return nil, nil, invalidResourceError
-	}
+func resourceToMetrics(resource trustedAdvisorResource, accountID string) (prometheus.Metric, prometheus.Metric, error) {
+	region := resource.Region
+	service := resource.Service
+	limitName := resource.LimitName
 
-	region := resource.Metadata[indexRegion]
-	service := resource.Metadata[indexService]
-	limitName := resource.Metadata[indexName]
-
-	limit := resource.Metadata[indexLimit]
-	usage := resource.Metadata[indexUsage]
+	limit := resource.Limit
+	usage := resource.Usage
 
 	if limit == nil {
 		return nil, nil, nilLimitError
