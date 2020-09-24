@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added caching to trusted advisor collector to reduce API call load.
+
 ## [1.0.0] - 2020-09-04
 
 ### Added
