@@ -219,7 +219,7 @@ func (t *TrustedAdvisor) collectForAccount(ch chan<- prometheus.Metric, awsClien
 	}
 
 	//Cache empty, getting from API
-	if trustedAdvisorInfo == nil || trustedAdvisorInfo.trustedAdvisors == nil {
+	if trustedAdvisorInfo == nil || trustedAdvisorInfo.TrustedAdvisors == nil {
 		trustedAdvisorInfo, err = t.getTrustedAdvisorInfoFromAPI(accountID, awsClients)
 		if err != nil {
 			return microerror.Mask(err)
@@ -232,7 +232,7 @@ func (t *TrustedAdvisor) collectForAccount(ch chan<- prometheus.Metric, awsClien
 		}
 	}
 	if trustedAdvisorInfo != nil {
-		for _, ta := range trustedAdvisorInfo.trustedAdvisors {
+		for _, ta := range trustedAdvisorInfo.TrustedAdvisors {
 
 			for _, resource := range ta.Resources {
 				limit, usage, err := resourceToMetrics(resource, accountID)
@@ -317,7 +317,7 @@ func (t *TrustedAdvisor) getTrustedAdvisorInfoFromAPI(accountID string, awsClien
 			return nil, microerror.Mask(err)
 		}
 	}
-	res.trustedAdvisors = trustedAdvisors
+	res.TrustedAdvisors = trustedAdvisors
 	return &res, nil
 }
 
