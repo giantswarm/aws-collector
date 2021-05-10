@@ -3,7 +3,7 @@ module github.com/giantswarm/aws-collector
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.38.31
+	github.com/aws/aws-sdk-go v1.38.36
 	github.com/giantswarm/apiextensions/v2 v2.6.2
 	github.com/giantswarm/exporterkit v0.2.1
 	github.com/giantswarm/k8sclient/v4 v4.1.0
@@ -20,7 +20,7 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	k8s.io/api v0.18.18
 	k8s.io/apimachinery v0.18.18
-	k8s.io/client-go v0.18.9
+	k8s.io/client-go v0.18.18
 	sigs.k8s.io/cluster-api v0.3.16
 )
 
