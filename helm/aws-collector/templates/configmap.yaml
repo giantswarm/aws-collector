@@ -18,14 +18,6 @@ data:
         trustedAdvisor:
           enabled: '{{ .Values.trustedAdvisor.enabled }}'
         region: '{{ .Values.aws.region }}'
-      registry:
-      {{- if hasPrefix "cn-" .Values.aws.region }}
-        domain: '{{ .Values.registry.domain }}'
-        mirrors: '{{ range $i, $e := .Values.registry.mirrors }}{{ if $i }},{{end}}{{ $e }}{{end}}'
-      {{ else }}
-        domain: 'docker.io'
-        mirrors: 'giantswarm.azurecr.io'
-      {{- end }}
       installation:
         name: '{{ .Values.managementCluster.name }}'
       kubernetes:

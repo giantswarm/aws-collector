@@ -26,4 +26,3 @@ trustedAdvisor:
 
 registry:
   domain: docker.io
-  mirrors: giantswarm.azurecr.io
