@@ -20,7 +20,6 @@ import (
 const (
 	// __SubnetCache__ is used as temporal cache key to save Subnet response.
 	prefixSubnetcacheKey = "__SubnetCache__"
-	labelSubnet          = "subnet"
 	labelIPPool          = "ip_pool"
 	labelAvailableIPs    = "available_ips"
 )
