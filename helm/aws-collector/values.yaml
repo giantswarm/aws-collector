@@ -20,8 +20,8 @@ managementCluster:
 
 aws:
   region: ""
-  accessKeyID: access
-  secretAccessKey: secret
+  accessKeyID: ""
+  secretAccessKey: ""
 
 trustedAdvisor:
   enabled: false
