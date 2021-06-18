@@ -20,7 +20,6 @@ import (
 const (
 	// __SubnetCache__ is used as temporal cache key to save Subnet response.
 	prefixSubnetcacheKey = "__SubnetCache__"
-	labelIPPool          = "ip_pool"
 	labelAvailableIPs    = "available_ips"
 )
 
@@ -44,7 +43,6 @@ var (
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
-			labelIPPool,
 			labelAvailableIPs,
 		},
 		nil,
@@ -222,7 +220,6 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 				subnet.Tags["AvailabilityZone"],
 				subnet.Tags["OwnerId"],
 				subnet.Tags["VpcId"],
-				subnet.Tags["CustomerOwnedIpv4Pool"],
 				subnet.Tags["AvailableIpAddressCount"],
 			)
 		}
@@ -238,10 +235,6 @@ func (e *Subnet) getSubnetInfoFromAPI(ctx context.Context, awsClients clientaws.
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	if o.Subnets == nil {
-		e.logger.Debugf(ctx, "No subnets found.")
-		return &res, nil
-	}
 
 	var subnets []subnetInfo
 	for _, sn := range o.Subnets {
@@ -254,7 +247,6 @@ func (e *Subnet) getSubnetInfoFromAPI(ctx context.Context, awsClients clientaws.
 				"AvailableIpAddressCount": fmt.Sprint(*sn.AvailableIpAddressCount),
 				"VpcId":                   *sn.VpcId,
 				"State":                   *sn.State,
-				"CustomerOwnedIpv4Pool":   *sn.CustomerOwnedIpv4Pool,
 			},
 		}
 		for _, t := range sn.Tags {
