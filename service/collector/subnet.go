@@ -3,7 +3,6 @@ package collector
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -20,7 +19,6 @@ import (
 const (
 	// __SubnetCache__ is used as temporal cache key to save Subnet response.
 	prefixSubnetcacheKey = "__SubnetCache__"
-	labelAvailableIPs    = "available_ips"
 )
 
 const (
@@ -29,7 +27,7 @@ const (
 
 var (
 	subnetsDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystemSubnet, "info"),
+		prometheus.BuildFQName(namespace, subsystemSubnet, "available_ips"),
 		"Subnet information.",
 		[]string{
 			labelAccountID,
@@ -43,7 +41,6 @@ var (
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
-			labelAvailableIPs,
 		},
 		nil,
 	)
@@ -73,8 +70,9 @@ type subnetInfoResponse struct {
 }
 
 type subnetInfo struct {
-	Name string
-	Tags map[string]string
+	Name         string
+	AvailableIPs int64
+	Tags         map[string]string
 }
 
 func NewSubnet(config SubnetConfig) (*Subnet, error) {
@@ -208,7 +206,7 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 			ch <- prometheus.MustNewConstMetric(
 				subnetsDesc,
 				prometheus.GaugeValue,
-				GaugeValue,
+				float64(subnet.AvailableIPs),
 				account,
 				subnet.Tags["CidrBlock"],
 				subnet.Tags[key.TagCluster],
@@ -220,7 +218,6 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 				subnet.Tags["AvailabilityZone"],
 				subnet.Tags["OwnerId"],
 				subnet.Tags["VpcId"],
-				subnet.Tags["AvailableIpAddressCount"],
 			)
 		}
 	}
@@ -239,14 +236,14 @@ func (e *Subnet) getSubnetInfoFromAPI(ctx context.Context, awsClients clientaws.
 	var subnets []subnetInfo
 	for _, sn := range o.Subnets {
 		subnet := subnetInfo{
-			Name: *sn.SubnetId,
+			Name:         *sn.SubnetId,
+			AvailableIPs: *sn.AvailableIpAddressCount,
 			Tags: map[string]string{
-				"CidrBlock":               *sn.CidrBlock,
-				"AvailabilityZone":        *sn.AvailabilityZone,
-				"OwnerId":                 *sn.OwnerId,
-				"AvailableIpAddressCount": fmt.Sprint(*sn.AvailableIpAddressCount),
-				"VpcId":                   *sn.VpcId,
-				"State":                   *sn.State,
+				"CidrBlock":        *sn.CidrBlock,
+				"AvailabilityZone": *sn.AvailabilityZone,
+				"OwnerId":          *sn.OwnerId,
+				"VpcId":            *sn.VpcId,
+				"State":            *sn.State,
 			},
 		}
 		for _, t := range sn.Tags {
