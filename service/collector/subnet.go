@@ -192,7 +192,7 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 
 	//Cache empty, getting from API
 	if subnetInfo == nil || subnetInfo.Subnets == nil {
-		subnetInfo, err = getSubnetInfoFromAPI(e.installationName, awsClients)
+		subnetInfo, err = e.getSubnetInfoFromAPI(ctx, awsClients)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -232,11 +232,15 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 }
 
 // getSubnetInfoFromAPI collects Subnet Info from AWS API
-func getSubnetInfoFromAPI(installation string, awsClients clientaws.Clients) (*subnetInfoResponse, error) {
+func (e *Subnet) getSubnetInfoFromAPI(ctx context.Context, awsClients clientaws.Clients) (*subnetInfoResponse, error) {
 	var res subnetInfoResponse
 	o, err := awsClients.EC2.DescribeSubnets(&ec2.DescribeSubnetsInput{})
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+	if o.Subnets == nil {
+		e.logger.Debugf(ctx, "No subnets found.")
+		return &res, nil
 	}
 
 	var subnets []subnetInfo
@@ -257,7 +261,7 @@ func getSubnetInfoFromAPI(installation string, awsClients clientaws.Clients) (*s
 			subnet.Tags[*t.Key] = *t.Value
 		}
 
-		if subnet.Tags[key.TagInstallation] != installation {
+		if subnet.Tags[key.TagInstallation] != e.installationName {
 			continue
 		}
 		subnets = append(subnets, subnet)
