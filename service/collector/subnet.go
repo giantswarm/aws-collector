@@ -38,11 +38,11 @@ var (
 			labelInstallation,
 			labelOrganization,
 			labelStack,
+			labelSubnetType,
 			labelState,
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
-			labelSubnetType,
 		},
 		nil,
 	)
@@ -216,11 +216,11 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 				e.installationName,
 				subnet.Tags[key.TagOrganization],
 				subnet.Tags[key.TagStack],
+				subnet.Tags[key.TagSubnetType],
 				subnet.Tags["State"],
 				subnet.Tags["AvailabilityZone"],
 				subnet.Tags["OwnerId"],
 				subnet.Tags["VpcId"],
-				subnet.Tags[key.TagSubnetType],
 			)
 		}
 	}
