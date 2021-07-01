@@ -14,10 +14,11 @@ import (
 )
 
 const (
-	labelCIDR  = "cidr"
-	labelID    = "id"
-	labelStack = "stack_name"
-	labelState = "state"
+	labelCIDR       = "cidr"
+	labelID         = "id"
+	labelStack      = "stack_name"
+	labelState      = "state"
+	labelSubnetType = "subnet_type"
 )
 
 const (
@@ -38,6 +39,7 @@ var (
 			labelOrganization,
 			labelStack,
 			labelState,
+			labelSubnetType,
 		},
 		nil,
 	)
@@ -130,7 +132,7 @@ func (v *VPC) collectForAccount(ch chan<- prometheus.Metric, awsClients clientaw
 	}
 
 	for _, vpc := range o.Vpcs {
-		var cluster, installation, name, organization, stackName string
+		var cluster, installation, name, organization, stackName, subnetType string
 
 		for _, tag := range vpc.Tags {
 			switch *tag.Key {
@@ -144,6 +146,8 @@ func (v *VPC) collectForAccount(ch chan<- prometheus.Metric, awsClients clientaw
 				organization = *tag.Value
 			case tagStackName:
 				stackName = *tag.Value
+			case key.TagSubnetType:
+				subnetType = *tag.Value
 			}
 		}
 
@@ -164,6 +168,7 @@ func (v *VPC) collectForAccount(ch chan<- prometheus.Metric, awsClients clientaw
 			organization,
 			stackName,
 			*vpc.State,
+			subnetType,
 		)
 	}
 

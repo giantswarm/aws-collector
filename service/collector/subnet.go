@@ -41,6 +41,7 @@ var (
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
+			labelSubnetType,
 		},
 		nil,
 	)
