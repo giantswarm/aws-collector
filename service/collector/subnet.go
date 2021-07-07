@@ -314,8 +314,8 @@ func getAvailableIPPercentage(cidr string, availableIps int64) (float64, error) 
 		return 0, microerror.Maskf(parsingFailedError, "Can not parse CIDR.")
 	}
 	if n, err := strconv.Atoi(parts[1]); err == nil {
-		totalIPs := math.Pow(2, float64(32-n))
-		return float64(availableIps)/totalIPs - 2, nil
+		totalIPs := math.Pow(2, float64(32-n)) - 2
+		return float64(availableIps) / totalIPs, nil
 	} else {
 		return 0, microerror.Mask(err)
 	}
