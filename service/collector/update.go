@@ -47,7 +47,7 @@ var (
 	)
 
 	updatePauseTime *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystemUpdate, "pause_time"),
+		prometheus.BuildFQName(namespace, subsystemUpdate, "pause_time_seconds"),
 		"The pause time in seconds between rolling batches of worker nodes during an upgrade for a given node pool.",
 		[]string{
 			labelCluster,
@@ -118,7 +118,7 @@ func (np *Update) Collect(ch chan<- prometheus.Metric) error {
 			nodePool := updateInfo{
 				nodePoolID:      md.Labels[label.MachineDeployment],
 				clusterID:       md.Labels[label.Cluster],
-				pauseTime:       pauseTime,
+				pauseTime:       math.Ceil(pauseTime),
 				batchPercentage: batchPercentage,
 				batchNumber:     batchNumber,
 			}
@@ -219,16 +219,20 @@ func calculateUpdateMetrics(batch string, pause string, min int, max int) (float
 
 	//check whether max batch size is given as percentage or integer and calculate the other accordingly
 	if n, err := strconv.Atoi(batch); err == nil {
+		// In case the batch is given as an integer, we calculate the max percentage of rolling nodes based on the minimum scaled setting.
+		// This can be more than 100 percent! The lowest min scaling we consider is 1 to avoid division by 0.
 		batchNumber = float64(n)
 		batchPercentage = float64(n) / math.Max(float64(min), 1)
 	} else if p, err := strconv.ParseFloat(batch, 64); err == nil {
+		// In case the batch is given as a percentage, we calculate the actual max number based on the maximum scaled setting.
 		batchNumber = float64(max) * p
 		batchPercentage = p
 	} else if err != nil {
 		return 0, 0, 0, microerror.Mask(err)
 	}
 
-	// calculate the pause time in seconds
+	// Calculate the pause time in seconds
+	// The pause time is given as ISO8601 string and we transform it to time in seconds
 	duration, err := duration.ParseISO8601(pause)
 	if err != nil {
 		return 0, 0, 0, microerror.Mask(err)

@@ -32,7 +32,7 @@ const (
 var (
 	subnetsDesc *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemSubnet, "available_ips"),
-		"Subnet information.",
+		"Number of still available IPs for each subnet.",
 		[]string{
 			labelAccountID,
 			labelCIDR,
@@ -51,7 +51,7 @@ var (
 	)
 	subnetsPercentageDesc *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemSubnet, "available_ips_percentage"),
-		"Subnet information.",
+		"Percentage of still available IPs for each subnet.",
 		[]string{
 			labelAccountID,
 			labelCIDR,
@@ -314,7 +314,7 @@ func getAvailableIPPercentage(cidr string, availableIps int64) (float64, error) 
 		return 0, microerror.Maskf(parsingFailedError, "Can not parse CIDR.")
 	}
 	if n, err := strconv.Atoi(parts[1]); err == nil {
-		// The number of IPs in the network are calculated as 2^(32-cidr). From there we substract 5 IPs that are always used by AWS
+		// The number of IPs in the network are calculated as 2^(32-netmask). From there we substract 5 IPs that are always used by AWS
 		totalIPs := math.Pow(2, float64(32-n)) - 5
 		return float64(availableIps) / totalIPs, nil
 	} else {
