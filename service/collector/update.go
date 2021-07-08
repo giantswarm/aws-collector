@@ -21,6 +21,7 @@ const (
 	subsystemUpdate  = "update"
 	DefaultBatchSize = "0.3"
 	DefaultPauseTime = "PT15M"
+	labelNodepool    = "node_pool_id"
 )
 
 var (
@@ -28,8 +29,8 @@ var (
 		prometheus.BuildFQName(namespace, subsystemUpdate, "max_batch_percentage"),
 		"Max percentage of worker nodes that can be rolled at once during an upgrade for a given node pool.",
 		[]string{
-			"cluster_id",
-			"node_pool_id",
+			labelCluster,
+			labelNodepool,
 		},
 		nil,
 	)
@@ -38,8 +39,8 @@ var (
 		prometheus.BuildFQName(namespace, subsystemUpdate, "max_batch_number"),
 		"Max number of worker nodes that can be rolled at once during an upgrade for a given node pool.",
 		[]string{
-			"cluster_id",
-			"node_pool_id",
+			labelCluster,
+			labelNodepool,
 		},
 		nil,
 	)
@@ -48,8 +49,8 @@ var (
 		prometheus.BuildFQName(namespace, subsystemUpdate, "pause_time"),
 		"The pause time in seconds between rolling batches of worker nodes during an upgrade for a given node pool.",
 		[]string{
-			"cluster_id",
-			"node_pool_id",
+			labelCluster,
+			labelNodepool,
 		},
 		nil,
 	)
@@ -130,33 +131,34 @@ func (np *Update) Collect(ch chan<- prometheus.Metric) error {
 				return microerror.Mask(err)
 			}
 			nodePool.pauseTime = float64(duration.Shift(time.Now()).Second())
+			nodePools = append(nodePools, nodePool)
 		}
+	}
 
-		for _, np := range nodePools {
-			ch <- prometheus.MustNewConstMetric(
-				updateBatchPercentage,
-				prometheus.GaugeValue,
-				np.batchPercentage,
-				np.clusterID,
-				np.nodePoolID,
-			)
+	for _, np := range nodePools {
+		ch <- prometheus.MustNewConstMetric(
+			updateBatchPercentage,
+			prometheus.GaugeValue,
+			np.batchPercentage,
+			np.clusterID,
+			np.nodePoolID,
+		)
 
-			ch <- prometheus.MustNewConstMetric(
-				updateBatchNumber,
-				prometheus.GaugeValue,
-				np.batchNumber,
-				np.clusterID,
-				np.nodePoolID,
-			)
+		ch <- prometheus.MustNewConstMetric(
+			updateBatchNumber,
+			prometheus.GaugeValue,
+			np.batchNumber,
+			np.clusterID,
+			np.nodePoolID,
+		)
 
-			ch <- prometheus.MustNewConstMetric(
-				updatePauseTime,
-				prometheus.GaugeValue,
-				float64(np.batchNumber),
-				np.clusterID,
-				np.nodePoolID,
-			)
-		}
+		ch <- prometheus.MustNewConstMetric(
+			updatePauseTime,
+			prometheus.GaugeValue,
+			float64(np.batchNumber),
+			np.clusterID,
+			np.nodePoolID,
+		)
 	}
 
 	return nil
