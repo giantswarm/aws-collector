@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"math"
 	"strconv"
 	"time"
 
@@ -106,31 +107,21 @@ func (np *Update) Collect(ch chan<- prometheus.Metric) error {
 	var nodePools []updateInfo
 	{
 		for _, md := range list.Items {
+			batch, pause, err := np.getUpdateAnnotations(md)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			pauseTime, batchNumber, batchPercentage, err := calculateUpdateMetrics(batch, pause, md.Spec.NodePool.Scaling.Min, md.Spec.NodePool.Scaling.Max)
+			if err != nil {
+				return microerror.Mask(err)
+			}
 			nodePool := updateInfo{
-				nodePoolID: md.Labels[label.MachineDeployment],
-				clusterID:  md.Labels[label.Cluster],
+				nodePoolID:      md.Labels[label.MachineDeployment],
+				clusterID:       md.Labels[label.Cluster],
+				pauseTime:       pauseTime,
+				batchPercentage: batchPercentage,
+				batchNumber:     batchNumber,
 			}
-			batch, pauseTime, err := np.getUpdateAnnotations(md)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-			//check whether max batch size is given as percentage or integer and calculate the other accordingly
-			if n, err := strconv.Atoi(batch); err == nil {
-				nodePool.batchNumber = float64(n)
-				nodePool.batchPercentage = float64(n / md.Spec.NodePool.Scaling.Min)
-			} else if p, err := strconv.ParseFloat(batch, 64); err == nil {
-				nodePool.batchNumber = float64(md.Spec.NodePool.Scaling.Max) * p
-				nodePool.batchPercentage = p
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-
-			// calculate the pause time in seconds
-			duration, err := duration.ParseISO8601(pauseTime)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-			nodePool.pauseTime = float64(duration.Shift(time.Now()).Second())
 			nodePools = append(nodePools, nodePool)
 		}
 	}
@@ -221,4 +212,29 @@ func (np *Update) getUpdateAnnotations(md infrastructurev1alpha2.AWSMachineDeplo
 		time = DefaultPauseTime
 	}
 	return batch, time, nil
+}
+
+func calculateUpdateMetrics(batch string, pause string, min int, max int) (float64, float64, float64, error) {
+	var batchNumber, batchPercentage, pauseTime float64
+
+	//check whether max batch size is given as percentage or integer and calculate the other accordingly
+	if n, err := strconv.Atoi(batch); err == nil {
+		batchNumber = float64(n)
+		batchPercentage = float64(n) / math.Max(float64(min), 1)
+	} else if p, err := strconv.ParseFloat(batch, 64); err == nil {
+		batchNumber = float64(max) * p
+		batchPercentage = p
+	} else if err != nil {
+		return 0, 0, 0, microerror.Mask(err)
+	}
+
+	// calculate the pause time in seconds
+	duration, err := duration.ParseISO8601(pause)
+	if err != nil {
+		return 0, 0, 0, microerror.Mask(err)
+	}
+	shifted := duration.Shift(time.Now())
+	pauseTime = time.Until(shifted).Seconds()
+
+	return pauseTime, batchNumber, batchPercentage, nil
 }

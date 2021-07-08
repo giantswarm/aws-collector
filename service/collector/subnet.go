@@ -314,7 +314,8 @@ func getAvailableIPPercentage(cidr string, availableIps int64) (float64, error) 
 		return 0, microerror.Maskf(parsingFailedError, "Can not parse CIDR.")
 	}
 	if n, err := strconv.Atoi(parts[1]); err == nil {
-		totalIPs := math.Pow(2, float64(32-n)) - 2
+		// The number of IPs in the network are calculated as 2^(32-cidr). From there we substract 5 IPs that are always used by AWS
+		totalIPs := math.Pow(2, float64(32-n)) - 5
 		return float64(availableIps) / totalIPs, nil
 	} else {
 		return 0, microerror.Mask(err)
