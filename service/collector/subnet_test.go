@@ -32,11 +32,11 @@ func TestAvailableIPPercentage(t *testing.T) {
 		},
 		{
 			name:         "case 2",
-			cidr:         "10.1.0.0/27",
+			cidr:         "10.1.0.0/2.7",
 			availableIPs: 25,
 
 			expectedPercentage: 0,
-			expectedError:      false,
+			expectedError:      true,
 		},
 	}
 
