@@ -155,7 +155,7 @@ func (np *Update) Collect(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			updatePauseTime,
 			prometheus.GaugeValue,
-			float64(np.batchNumber),
+			float64(np.pauseTime),
 			np.clusterID,
 			np.nodePoolID,
 		)
