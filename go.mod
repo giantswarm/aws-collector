@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.41.7
-	github.com/giantswarm/apiextensions/v3 v3.34.0
+	github.com/giantswarm/apiextensions/v3 v3.35.0
 	github.com/giantswarm/exporterkit v0.2.1
 	github.com/giantswarm/k8sclient/v5 v5.12.0
 	github.com/giantswarm/k8smetadata v0.4.0
