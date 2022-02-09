@@ -28,3 +28,5 @@ trustedAdvisor:
 
 registry:
   domain: docker.io
+  pullSecret:
+    dockerConfigJSON: ""
