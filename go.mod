@@ -3,26 +3,26 @@ module github.com/giantswarm/aws-collector
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.42.38
+	github.com/aws/aws-sdk-go v1.42.50
 	github.com/giantswarm/apiextensions/v3 v3.39.0
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v5 v5.12.0
-	github.com/giantswarm/k8smetadata v0.8.0
+	github.com/giantswarm/k8smetadata v0.9.2
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v0.6.0
 	github.com/giantswarm/operatorkit/v5 v5.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus/client_golang v1.12.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
 	github.com/spf13/viper v1.10.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	k8s.io/api v0.18.19
-	k8s.io/apimachinery v0.18.19
-	k8s.io/client-go v0.18.19
+	k8s.io/api v0.20.15
+	k8s.io/apimachinery v0.20.15
+	k8s.io/client-go v0.20.15
 	sigs.k8s.io/cluster-api v1.0.2
-	sigs.k8s.io/controller-runtime v0.6.4
+	sigs.k8s.io/controller-runtime v0.6.5
 )
 
 replace (
