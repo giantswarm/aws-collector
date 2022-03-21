@@ -30,3 +30,6 @@ registry:
   domain: docker.io
   pullSecret:
     dockerConfigJSON: ""
+
+verticalPodAutoscaler:
+  enabled: true
