@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2022-03-31
+
 ### Changed
 
 - Upgrade apiextensions to `v6.0.0`.
@@ -63,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Project copied from [aws-operator](https://github.com/giantswarm/aws-operator)
 
-[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/giantswarm/aws-collector/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/giantswarm/aws-collector/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/giantswarm/aws-collector/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/giantswarm/aws-collector/compare/v1.4.0...v1.5.0
