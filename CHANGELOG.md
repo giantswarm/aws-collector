@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgrade CAPI dependencies.
+- Upgrade apiextensions to `v6.0.0`.
+- Remove `cluster-api` dependency.
 
 ## [1.6.0] - 2022-03-21
 
