@@ -95,4 +95,5 @@ replace (
 	github.com/coreos/etcd v3.3.13+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.5
 )
