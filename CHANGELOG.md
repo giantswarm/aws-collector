@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2022-06-15
+
 ### Changed
 
 - Remove `imagePullSecret` used in deployment
@@ -69,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Project copied from [aws-operator](https://github.com/giantswarm/aws-operator)
 
-[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/giantswarm/aws-collector/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/giantswarm/aws-collector/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/giantswarm/aws-collector/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/giantswarm/aws-collector/compare/v1.5.0...v1.5.1
