@@ -9,7 +9,8 @@ metadata:
 spec:
   endpoints:
     - honorLabels: true
-      interval: 30s
+      interval: 120s
+      scrapeTimeout: 30s
       path: /metrics
       port: metrics
       relabelings:

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Raise scrape interval to 120s.
+- Raise scrape timeout to 60s.
+
 ## [2.1.0] - 2023-04-05
 
 ### Added
