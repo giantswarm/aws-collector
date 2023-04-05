@@ -12,10 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the use of the `runtime/default` seccomp profile.
 - Added `ServiceMonitor` for prometheus scraping.
 
-### Removed
-
-- Service definition.
-
 ## [2.0.1] - 2022-06-15
 
 ### Changed
