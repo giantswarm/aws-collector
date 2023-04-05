@@ -4,15 +4,15 @@ go 1.18
 
 require (
 	github.com/aws/aws-sdk-go v1.44.236
-	github.com/giantswarm/apiextensions/v6 v6.0.0
+	github.com/giantswarm/apiextensions/v6 v6.5.0
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v7 v7.0.1
-	github.com/giantswarm/k8smetadata v0.11.1
+	github.com/giantswarm/k8smetadata v0.20.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
-	github.com/giantswarm/operatorkit/v7 v7.0.1
+	github.com/giantswarm/operatorkit/v7 v7.1.0
 	github.com/giantswarm/release-operator/v3 v3.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.14.0
