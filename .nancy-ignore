@@ -7,3 +7,7 @@ CVE-2022-26652 until=2023-12-31
 CVE-2022-42709 until=2023-12-31
 CVE-2022-42708 until=2023-12-31
 CVE-2022-28357 until=2023-12-31
+
+// unsolved as of k8s.io/apiserver@v0.26.3
+sonatype-2022-6522
+CVE-2020-8561
