@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2023-04-05
+
 ### Added
 
 - Added the use of the `runtime/default` seccomp profile.
@@ -76,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Project copied from [aws-operator](https://github.com/giantswarm/aws-operator)
 
-[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/giantswarm/aws-collector/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/giantswarm/aws-collector/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/giantswarm/aws-collector/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/giantswarm/aws-collector/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/giantswarm/aws-collector/compare/v1.5.1...v1.6.0
