@@ -12,8 +12,8 @@ require (
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
-	github.com/giantswarm/operatorkit/v7 v7.1.0
-	github.com/giantswarm/release-operator/v3 v3.2.0
+	github.com/giantswarm/operatorkit/v8 v8.0.0
+	github.com/giantswarm/release-operator/v4 v4.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.14.0
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
@@ -22,7 +22,7 @@ require (
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.3
-	sigs.k8s.io/controller-runtime v0.12.1
+	sigs.k8s.io/controller-runtime v0.12.3
 )
 
 require (
