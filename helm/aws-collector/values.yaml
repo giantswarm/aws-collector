@@ -48,3 +48,10 @@ securityContext:
   capabilities:
     drop:
     - ALL
+
+serviceMonitor:
+  enabled: true
+  # -- (duration) Prometheus scrape interval.
+  interval: "120s"
+  # -- (duration) Prometheus scrape timeout.
+  scrapeTimeout: "30s"

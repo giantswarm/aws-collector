@@ -1,3 +1,4 @@
+{{- if .Values.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -9,8 +10,7 @@ metadata:
 spec:
   endpoints:
     - honorLabels: true
-      interval: 120s
-      scrapeTimeout: 30s
+      interval: {{ .Values.serviceMonitor.interval }}
       path: /metrics
       port: metrics
       relabelings:
@@ -18,9 +18,11 @@ spec:
             - __meta_kubernetes_pod_node_name
           targetLabel: node
           replacement: ${1}
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
   namespaceSelector:
     matchNames:
       - {{ include "resource.default.namespace" . }}
   selector:
     matchLabels:
       {{- include "labels.selector" . | nindent 6 }}
+{{- end }}
