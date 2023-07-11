@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Added required values for pss policies.
+
 ### Added
 
 - Add service monitor to be scraped by Prometheus Agent.
-- Added required values for pss policies.
-- Added pss exceptions for volumes.
 
 ## [2.2.0] - 2023-04-05
 
