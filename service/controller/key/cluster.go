@@ -50,6 +50,10 @@ const (
 	TagStack                   = "giantswarm.io/stack"
 	TagSnapshot                = "giantswarm.io/snapshot"
 	TagSubnetType              = "giantswarm.io/subnet-type"
+
+	SubnetTypePrivate = "private"
+	SubnetTypePublic  = "public"
+	SubnetTypeAWSCNI  = "aws-cni"
 )
 
 const (

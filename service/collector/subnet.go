@@ -27,6 +27,7 @@ const (
 const (
 	subsystemSubnet = "subnet"
 	labelSubnetType = "subnet_type"
+	labelUsedFor    = "used_for"
 )
 
 var (
@@ -46,6 +47,7 @@ var (
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
+			labelUsedFor,
 		},
 		nil,
 	)
@@ -65,6 +67,7 @@ var (
 			labelAvailabilityZone,
 			labelAccount,
 			labelVPC,
+			labelUsedFor,
 		},
 		nil,
 	)
@@ -229,6 +232,22 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 
 	if subnetInfo != nil {
 		for _, subnet := range subnetInfo.Subnets {
+
+			// This makes sense for workload clusters only.
+			usedFor := ""
+			switch subnet.Tags[key.TagSubnetType] {
+			case key.SubnetTypeAWSCNI:
+				usedFor = "pods"
+			case key.SubnetTypePrivate:
+				usedFor = "control-plane"
+			case key.SubnetTypePublic:
+				usedFor = "public-load-balancer"
+			case "":
+				if subnet.Tags[key.TagMachineDeployment] != "" {
+					usedFor = "node-pool"
+				}
+			}
+
 			ch <- prometheus.MustNewConstMetric(
 				subnetsDesc,
 				prometheus.GaugeValue,
@@ -245,6 +264,7 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 				subnet.Tags["AvailabilityZone"],
 				subnet.Tags["OwnerId"],
 				subnet.Tags["VpcId"],
+				usedFor,
 			)
 
 			ch <- prometheus.MustNewConstMetric(
@@ -263,6 +283,7 @@ func (e *Subnet) collectForAccount(ctx context.Context, ch chan<- prometheus.Met
 				subnet.Tags["AvailabilityZone"],
 				subnet.Tags["OwnerId"],
 				subnet.Tags["VpcId"],
+				usedFor,
 			)
 		}
 	}

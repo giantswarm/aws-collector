@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `global.podSecurityStandards.enforced` value for PSS migration.
+- Add `usedFor` label to subnet metrics.
 
 ## [2.3.0] - 2023-07-13
 
