@@ -27,7 +27,7 @@ trustedAdvisor:
   enabled: false
 
 registry:
-  domain: docker.io
+  domain: quay.io
   pullSecret:
     dockerConfigJSON: ""
 
