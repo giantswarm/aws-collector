@@ -312,9 +312,9 @@ func getElbInfoFromAPI(ctx context.Context, account string, installation string,
 	{
 		// AWS API doesn't provide a method to describe instance health for all
 		// specified ELBs so it must be done with N API calls.
-		for _, lb := range lbs {
+		for i, lb := range lbs {
 			i := &elb.DescribeInstanceHealthInput{
-				LoadBalancerName: &lb.Name,
+				LoadBalancerName: &lbs[i].Name,
 			}
 
 			o, err := awsClients.ELB.DescribeInstanceHealth(i)
