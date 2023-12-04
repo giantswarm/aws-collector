@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -188,7 +189,7 @@ func (e *ELB) collectForAccount(ctx context.Context, ch chan<- prometheus.Metric
 		return microerror.Mask(err)
 	}
 
-	//Cache empty, getting from API
+	// Cache empty, getting from API
 	if elbInfo == nil || elbInfo.Elbs == nil {
 		elbInfo, err = getElbInfoFromAPI(ctx, account, e.installationName, awsClients)
 		if err != nil {
@@ -312,19 +313,19 @@ func getElbInfoFromAPI(ctx context.Context, account string, installation string,
 	{
 		// AWS API doesn't provide a method to describe instance health for all
 		// specified ELBs so it must be done with N API calls.
-		for i, lb := range lbs {
-			i := &elb.DescribeInstanceHealthInput{
+		for i := range lbs {
+			describeInstanceHealthInput := &elb.DescribeInstanceHealthInput{
 				LoadBalancerName: &lbs[i].Name,
 			}
 
-			o, err := awsClients.ELB.DescribeInstanceHealth(i)
+			o, err := awsClients.ELB.DescribeInstanceHealth(describeInstanceHealthInput)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
 
 			for _, s := range o.InstanceStates {
 				if *s.State == stateOutOfService {
-					lb.InstancesOutOfService++
+					lbs[i].InstancesOutOfService++
 				}
 			}
 		}
