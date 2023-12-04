@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -315,7 +314,7 @@ func getElbInfoFromAPI(ctx context.Context, account string, installation string,
 		// specified ELBs so it must be done with N API calls.
 		for i := range lbs {
 			describeInstanceHealthInput := &elb.DescribeInstanceHealthInput{
-				LoadBalancerName: aws.String(lbs[i].Name),
+				LoadBalancerName: &lbs[i].Name,
 			}
 
 			o, err := awsClients.ELB.DescribeInstanceHealth(describeInstanceHealthInput)
