@@ -27,7 +27,7 @@ trustedAdvisor:
   enabled: false
 
 registry:
-  domain: docker.io
+  domain: gsoci.azurecr.io
   pullSecret:
     dockerConfigJSON: ""
 
@@ -47,7 +47,7 @@ securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
-    - ALL
+      - ALL
 
 serviceMonitor:
   enabled: true
