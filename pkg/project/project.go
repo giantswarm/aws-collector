@@ -5,7 +5,7 @@ var (
 	gitSHA             = "n/a"
 	name        string = "aws-collector"
 	source      string = "https://github.com/giantswarm/aws-collector"
-	version            = "2.3.1-dev"
+	version            = "2.4.0"
 )
 
 func Description() string {
