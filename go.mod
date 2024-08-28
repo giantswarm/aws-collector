@@ -18,7 +18,7 @@ require (
 	github.com/prometheus/client_golang v1.17.0
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
 	github.com/spf13/viper v1.17.0
-	golang.org/x/sync v0.5.0
+	golang.org/x/sync v0.8.0
 	k8s.io/api v0.28.3
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3
