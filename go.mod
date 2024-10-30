@@ -3,7 +3,7 @@ module github.com/giantswarm/aws-collector
 go 1.21
 
 require (
-	github.com/aws/aws-sdk-go v1.46.2
+	github.com/aws/aws-sdk-go v1.55.5
 	github.com/giantswarm/apiextensions/v6 v6.6.0
 	github.com/giantswarm/exporterkit v1.1.0
 	github.com/giantswarm/k8sclient/v7 v7.2.0
